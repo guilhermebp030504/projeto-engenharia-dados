@@ -409,45 +409,19 @@ A DAG principal realiza:
 
 # Prints do Projeto
 
-## Airflow DAG
+## Arquitetura dbt (Lineage Graph)
 
-Adicionar screenshot em:
+Visualização das relações entre modelos, dimensões, fatos e camadas do projeto no dbt.
 
-```text
-docs/airflow_dag.png
-```
+![Arquitetura dbt](docs/arquitetura.png)
 
 ---
 
-## Snowflake Tables
+## Dashboard Analítico
 
-Adicionar screenshot em:
+Dashboard desenvolvido no Google Data Studio utilizando os dados transformados no Snowflake.
 
-```text
-docs/snowflake_tables.png
-```
-
----
-
-## dbt Lineage
-
-Adicionar screenshot em:
-
-```text
-docs/dbt_lineage.png
-```
-
----
-
-## Dashboard
-
-Adicionar screenshot em:
-
-```text
-docs/dashboard.png
-```
-
----
+![Dashboard](docs/dashboard.png)
 
 # Melhorias Futuras
 
@@ -471,9 +445,3 @@ Este projeto teve como objetivo praticar conceitos modernos de Engenharia de Dad
 - Orquestração de dados
 - Modelagem dimensional
 - Business Intelligence
-
----
-
-# Autor
-
-Projeto desenvolvido para fins educacionais e portfólio profissional.
