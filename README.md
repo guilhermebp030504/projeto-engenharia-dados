@@ -47,32 +47,23 @@ Google Data Studio
 
 ```text
 .
-│   docker-compose.yaml
+├── airflow/
+│   ├── dags/
+│   ├── config/
+│   ├── plugins/
+│   └── docker-compose.yaml
 │
-├───config
-│       airflow.cfg
+├── dbt/
+│   ├── models/
+│   ├── macros/
+│   ├── tests/
+│   ├── snapshots/
+│   └── dbt_project.yml
 │
-├───dags
-│       novadrive.py
+├── docs/
 │
-├───dbt
-│   │   dbt_project.yml
-│   │   README.md
-│   │
-│   ├───models
-│   │   ├───analysis
-│   │   ├───dimensions
-│   │   ├───facts
-│   │   └───stage
-│   │
-│   ├───macros
-│   ├───tests
-│   ├───snapshots
-│   └───seeds
-│
-├───plugins
-│
-└───docs
+├── .gitignore
+└── README.md
 ```
 
 ---
