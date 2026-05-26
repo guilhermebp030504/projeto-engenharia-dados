@@ -47,29 +47,32 @@ Google Data Studio
 
 ```text
 .
-├── airflow/
+│   docker-compose.yaml
 │
-├── dags/
+├───config
+│       airflow.cfg
 │
-├── config/
+├───dags
+│       novadrive.py
 │
-├── plugins/
-│ └── docker-compose.yaml
+├───dbt
+│   │   dbt_project.yml
+│   │   README.md
+│   │
+│   ├───models
+│   │   ├───analysis
+│   │   ├───dimensions
+│   │   ├───facts
+│   │   └───stage
+│   │
+│   ├───macros
+│   ├───tests
+│   ├───snapshots
+│   └───seeds
 │
-├── dbt/
+├───plugins
 │
-├── models/
-│
-├── macros/
-│
-├── tests/
-│
-├── snapshots/
-│
-└── dbt_project.yml │
-├── docs/ │
-├── .gitignore
-└── README.md
+└───docs
 ```
 
 ---
@@ -124,23 +127,53 @@ O projeto utiliza modelagem dimensional para organização analítica dos dados.
 
 Responsável pela limpeza e padronização inicial dos dados.
 
-Exemplos:
+Modelos:
 
 - `stg_clientes`
 - `stg_vendas`
 - `stg_veiculos`
+- `stg_vendedores`
+- `stg_concessionarias`
+- `stg_cidades`
+- `stg_estados`
+
+---
 
 ## Dimensions
 
-Camada responsável pelas dimensões analíticas do projeto.
+Camada responsável pelas dimensões analíticas.
+
+Modelos:
+
+- `dim_clientes`
+- `dim_veiculos`
+- `dim_vendedores`
+- `dim_concessionarias`
+- `dim_cidades`
+- `dim_estados`
+
+---
 
 ## Facts
 
-Camada responsável pelas métricas e consolidação dos fatos de negócio.
+Camada responsável pelas tabelas fato e métricas analíticas.
+
+Modelos:
+
+- `fct_vendas`
+
+---
 
 ## Analysis
 
 Camada utilizada para consultas analíticas e exploração dos dados.
+
+Consultas:
+
+- `analise_vendas_concessionaria`
+- `analise_vendas_temporal`
+- `analise_vendas_veiculo`
+- `analise_vendas_vendedor`
 
 ---
 
@@ -209,9 +242,11 @@ Criar uma conexão do tipo `postgres` utilizando os seguintes parâmetros:
 
 ---
 
-# Connection Snowflake
+# Configuração Snowflake
 
-Criar uma conexão do tipo `snowflake`.
+O Snowflake é utilizado como Data Warehouse principal do projeto.
+
+Criar uma conexão do tipo `snowflake` no Airflow utilizando os dados da sua conta Snowflake.
 
 Exemplo:
 
@@ -222,9 +257,131 @@ Exemplo:
 | Account | `<SEU_ACCOUNT>` |
 | User | `<SEU_USER>` |
 | Password | `<SEU_PASSWORD>` |
-| Database | `<SEU_DATABASE>` |
-| Warehouse | `<SEU_WAREHOUSE>` |
-| Schema | `<SEU_SCHEMA>` |
+| Database | `NOVADRIVE` |
+| Warehouse | `DEFAULT_WH` |
+| Schema | `STAGE` |
+
+---
+
+# Script de Criação Snowflake
+
+Executar o script abaixo no Snowflake para criação do ambiente utilizado no projeto.
+
+```sql
+CREATE DATABASE novadrive;
+
+CREATE SCHEMA stage;
+
+CREATE WAREHOUSE DEFAULT_WH;
+
+CREATE TABLE veiculos (
+    id_veiculos INTEGER,
+    nome VARCHAR(255) NOT NULL,
+    tipo VARCHAR(100) NOT NULL,
+    valor DECIMAL(10, 2) NOT NULL,
+    data_atualizacao TIMESTAMP_LTZ,
+    data_inclusao TIMESTAMP_LTZ
+);
+
+CREATE TABLE estados (
+    id_estados INTEGER,
+    estado VARCHAR(100) NOT NULL,
+    sigla CHAR(2) NOT NULL,
+    data_inclusao TIMESTAMP_LTZ,
+    data_atualizacao TIMESTAMP_LTZ
+);
+
+CREATE TABLE cidades (
+    id_cidades INTEGER,
+    cidade VARCHAR(255) NOT NULL,
+    id_estados INTEGER NOT NULL,
+    data_inclusao TIMESTAMP_LTZ,
+    data_atualizacao TIMESTAMP_LTZ
+);
+
+CREATE TABLE concessionarias (
+    id_concessionarias INTEGER,
+    concessionaria VARCHAR(255) NOT NULL,
+    id_cidades INTEGER NOT NULL,
+    data_inclusao TIMESTAMP_LTZ,
+    data_atualizacao TIMESTAMP_LTZ
+);
+
+CREATE TABLE vendedores (
+    id_vendedores INTEGER,
+    nome VARCHAR(255) NOT NULL,
+    id_concessionarias INTEGER NOT NULL,
+    data_inclusao TIMESTAMP_LTZ,
+    data_atualizacao TIMESTAMP_LTZ
+);
+
+CREATE TABLE clientes (
+    id_clientes INTEGER,
+    cliente VARCHAR(255) NOT NULL,
+    endereco TEXT NOT NULL,
+    id_concessionarias INTEGER NOT NULL,
+    data_inclusao TIMESTAMP_LTZ,
+    data_atualizacao TIMESTAMP_LTZ
+);
+
+CREATE TABLE vendas (
+    id_vendas INTEGER,
+    id_veiculos INTEGER NOT NULL,
+    id_concessionarias INTEGER NOT NULL,
+    id_vendedores INTEGER NOT NULL,
+    id_clientes INTEGER NOT NULL,
+    valor_pago DECIMAL(10, 2) NOT NULL,
+    data_venda TIMESTAMP_LTZ,
+    data_inclusao TIMESTAMP_LTZ,
+    data_atualizacao TIMESTAMP_LTZ
+);
+```
+
+---
+
+# Configuração dbt
+
+O projeto dbt está localizado na pasta:
+
+```text
+dbt/
+```
+
+O dbt é responsável pelas transformações analíticas e modelagem dimensional dos dados armazenados no Snowflake.
+
+---
+
+# Executar dbt
+
+## Instalar dependências
+
+```bash
+dbt deps
+```
+
+---
+
+## Testar conexão
+
+```bash
+dbt debug
+```
+
+---
+
+## Executar transformações
+
+```bash
+dbt run
+```
+
+---
+
+## Executar testes
+
+```bash
+dbt test
+```
 
 ---
 
@@ -236,7 +393,17 @@ A DAG principal realiza:
 2. Identificação do último ID carregado
 3. Extração de novos registros
 4. Carga incremental no Snowflake
-5. Execução das transformações analíticas
+5. Execução das transformações analíticas utilizando dbt
+
+---
+
+# Fluxo Completo do Pipeline
+
+1. Extração incremental dos dados via PostgreSQL
+2. Orquestração utilizando Apache Airflow
+3. Carga dos dados no Snowflake
+4. Transformações analíticas utilizando dbt
+5. Consumo analítico via Google Data Studio
 
 ---
 
