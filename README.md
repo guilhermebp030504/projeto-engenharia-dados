@@ -152,13 +152,15 @@ Camada utilizada para consultas analíticas e exploração dos dados.
 - Docker Compose
 - Python 3.13+
 - Conta Snowflake
+- Conta dbt
+- Conta Google
 
 ---
 
 # Clonar Repositório
 
 ```bash
-git clone https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git
+git clone https://github.com/guilhermebp030504/projeto-engenharia-dados.git
 ```
 
 ---
@@ -167,14 +169,6 @@ git clone https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git
 
 ```bash
 docker compose up -d
-```
-
----
-
-# Inicializar Airflow
-
-```bash
-docker compose up airflow-init
 ```
 
 ---
@@ -201,7 +195,7 @@ Admin -> Connections
 
 # Connection PostgreSQL
 
-Criar uma conexão do tipo `Postgres` utilizando os seguintes parâmetros:
+Criar uma conexão do tipo `postgres` utilizando os seguintes parâmetros:
 
 | Campo | Valor |
 |---|---|
@@ -217,7 +211,7 @@ Criar uma conexão do tipo `Postgres` utilizando os seguintes parâmetros:
 
 # Connection Snowflake
 
-Criar uma conexão do tipo `Snowflake`.
+Criar uma conexão do tipo `snowflake`.
 
 Exemplo:
 
