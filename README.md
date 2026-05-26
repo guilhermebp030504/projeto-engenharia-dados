@@ -62,7 +62,6 @@ Google Data Studio
 │
 ├── docs/
 │
-├── .env.example
 ├── .gitignore
 └── README.md
 ```
