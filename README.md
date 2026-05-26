@@ -46,7 +46,30 @@ Google Data Studio
 # Estrutura do Projeto
 
 ```text
-. ├── airflow/ │ ├── dags/ │ ├── config/ │ ├── plugins/ │ └── docker-compose.yaml │ ├── dbt/ │ ├── models/ │ ├── macros/ │ ├── tests/ │ ├── snapshots/ │ └── dbt_project.yml │ ├── docs/ │ ├── .gitignore └── README.md
+.
+├── airflow/
+│
+├── dags/
+│
+├── config/
+│
+├── plugins/
+│ └── docker-compose.yaml
+│
+├── dbt/
+│
+├── models/
+│
+├── macros/
+│
+├── tests/
+│
+├── snapshots/
+│
+└── dbt_project.yml │
+├── docs/ │
+├── .gitignore
+└── README.md
 ```
 
 ---
