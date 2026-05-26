@@ -1,16 +1,16 @@
-# Pipeline de Engenharia de Dados com Airflow, Snowflake, dbt e Data Studio
+# Pipeline de Engenharia de Dados com Airflow, Snowflake, dbt e Google Data Studio
 
 ## Sobre o Projeto
 
-Este projeto foi desenvolvido como parte de um estudo prático de Engenharia de Dados, utilizando uma arquitetura moderna de pipeline ELT com orquestração, armazenamento em Data Warehouse, transformação de dados e visualização analítica.
+Este projeto foi desenvolvido como prática de Engenharia de Dados utilizando ferramentas modernas amplamente utilizadas no mercado para construção de pipelines ELT, Data Warehousing e Analytics Engineering.
 
 O pipeline realiza:
 
 - Extração de dados de um banco PostgreSQL remoto
 - Orquestração das cargas utilizando Apache Airflow
 - Armazenamento dos dados no Snowflake
-- Transformações e modelagem analítica com dbt
-- Criação de dashboards no Google Data Studio
+- Transformações analíticas utilizando dbt
+- Construção de dashboards no Google Data Studio
 
 ---
 
@@ -47,32 +47,41 @@ Google Data Studio
 
 ```text
 .
-├── airflow/
-│   ├── dags/
-│   ├── config/
-│   ├── plugins/
-│   └── docker-compose.yaml
+│   docker-compose.yaml
 │
-├── dbt/
-│   ├── models/
-│   ├── macros/
-│   ├── tests/
-│   ├── snapshots/
-│   └── dbt_project.yml
+├───config
+│       airflow.cfg
 │
-├── docs/
+├───dags
+│       novadrive.py
 │
-├── .gitignore
-└── README.md
+├───dbt
+│   │   dbt_project.yml
+│   │   README.md
+│   │
+│   ├───models
+│   │   ├───analysis
+│   │   ├───dimensions
+│   │   ├───facts
+│   │   └───stage
+│   │
+│   ├───macros
+│   ├───tests
+│   ├───snapshots
+│   └───seeds
+│
+├───plugins
+│
+└───docs
 ```
 
 ---
 
-# Pipeline ETL
+# Pipeline ELT
 
 ## Extração
 
-Os dados são extraídos de um banco PostgreSQL remoto utilizando operadores Python no Apache Airflow.
+Os dados são extraídos de um banco PostgreSQL remoto utilizando tarefas Python no Apache Airflow.
 
 ## Carga
 
@@ -80,24 +89,24 @@ Os dados são carregados incrementalmente no Snowflake, utilizado como Data Ware
 
 ## Transformação
 
-As transformações são realizadas com dbt utilizando:
+As transformações são realizadas utilizando dbt com separação em camadas:
 
 - Staging Layer
-- Dimensional Modeling
-- Fact Tables
-- Analytical Views
+- Dimensions
+- Facts
+- Analysis
 
 ## Visualização
 
-Os dados transformados são consumidos no Google Data Studio para criação de dashboards analíticos.
+Os dados transformados são consumidos diretamente no Google Data Studio para criação de dashboards analíticos.
 
 ---
 
 # Modelagem de Dados
 
-O projeto utiliza modelagem dimensional contendo:
+O projeto utiliza modelagem dimensional para organização analítica dos dados.
 
-## Tabelas Fato
+## Tabela Fato
 
 - `fct_vendas`
 
@@ -114,26 +123,27 @@ O projeto utiliza modelagem dimensional contendo:
 
 # Estrutura dbt
 
-## Staging
+## Stage
 
-Responsável pela padronização e limpeza inicial dos dados.
+Responsável pela limpeza e padronização inicial dos dados.
 
 Exemplos:
+
 - `stg_clientes`
 - `stg_vendas`
 - `stg_veiculos`
 
 ## Dimensions
 
-Responsável pelas dimensões analíticas.
+Camada responsável pelas dimensões analíticas do projeto.
 
 ## Facts
 
-Responsável pelas métricas de negócio e consolidação analítica.
+Camada responsável pelas métricas e consolidação dos fatos de negócio.
 
 ## Analysis
 
-Camada utilizada para consultas analíticas e exploração de dados.
+Camada utilizada para consultas analíticas e exploração dos dados.
 
 ---
 
@@ -145,11 +155,10 @@ Camada utilizada para consultas analíticas e exploração de dados.
 - Docker Compose
 - Python 3.13+
 - Conta Snowflake
-- Conta dbt Cloud (opcional)
 
 ---
 
-## Clonar Repositório
+# Clonar Repositório
 
 ```bash
 git clone https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git
@@ -157,26 +166,7 @@ git clone https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git
 
 ---
 
-## Configurar Variáveis de Ambiente
-
-Criar arquivo `.env` baseado no `.env.example`
-
-Exemplo:
-
-```env
-POSTGRES_HOST=
-POSTGRES_USER=
-POSTGRES_PASSWORD=
-
-SNOWFLAKE_ACCOUNT=
-SNOWFLAKE_USER=
-SNOWFLAKE_PASSWORD=
-SNOWFLAKE_DATABASE=
-```
-
----
-
-## Subir Ambiente Airflow
+# Subir Ambiente Airflow
 
 ```bash
 docker compose up -d
@@ -184,11 +174,66 @@ docker compose up -d
 
 ---
 
-## Acessar Airflow
+# Inicializar Airflow
+
+```bash
+docker compose up airflow-init
+```
+
+---
+
+# Acessar Airflow
 
 ```text
 http://localhost:8080
 ```
+
+---
+
+# Configuração das Connections no Airflow
+
+As credenciais utilizadas no projeto são configuradas diretamente nas Connections do Apache Airflow.
+
+Acesse:
+
+```text
+Admin -> Connections
+```
+
+---
+
+# Connection PostgreSQL
+
+Criar uma conexão do tipo `Postgres` utilizando os seguintes parâmetros:
+
+| Campo | Valor |
+|---|---|
+| Connection Id | `postgres_novadrive` |
+| Connection Type | `Postgres` |
+| Host | `159.223.187.110` |
+| Schema | `novadrive` |
+| Login | `etlreadonly` |
+| Password | `novadrive376A@` |
+| Port | `5432` |
+
+---
+
+# Connection Snowflake
+
+Criar uma conexão do tipo `Snowflake`.
+
+Exemplo:
+
+| Campo | Valor |
+|---|---|
+| Connection Id | `snowflake_default` |
+| Connection Type | `Snowflake` |
+| Account | `<SEU_ACCOUNT>` |
+| User | `<SEU_USER>` |
+| Password | `<SEU_PASSWORD>` |
+| Database | `<SEU_DATABASE>` |
+| Warehouse | `<SEU_WAREHOUSE>` |
+| Schema | `<SEU_SCHEMA>` |
 
 ---
 
@@ -199,8 +244,8 @@ A DAG principal realiza:
 1. Leitura incremental do PostgreSQL
 2. Identificação do último ID carregado
 3. Extração de novos registros
-4. Carga no Snowflake
-5. Execução das transformações dbt
+4. Carga incremental no Snowflake
+5. Execução das transformações analíticas
 
 ---
 
@@ -216,7 +261,7 @@ docs/airflow_dag.png
 
 ---
 
-## Snowflake
+## Snowflake Tables
 
 Adicionar screenshot em:
 
@@ -252,9 +297,9 @@ docs/dashboard.png
 - Integração CI/CD
 - Monitoramento do pipeline
 - Testes automatizados dbt
-- Orquestração com Kubernetes
-- Incremental models no dbt
+- Incremental Models
 - Observabilidade de dados
+- Orquestração em Kubernetes
 
 ---
 
@@ -262,11 +307,11 @@ docs/dashboard.png
 
 Este projeto teve como objetivo praticar conceitos modernos de Engenharia de Dados utilizando ferramentas amplamente utilizadas no mercado para:
 
-- Orquestração de pipelines
+- Construção de pipelines ELT
 - Data Warehousing
-- Transformação de dados
-- Modelagem dimensional
 - Analytics Engineering
+- Orquestração de dados
+- Modelagem dimensional
 - Business Intelligence
 
 ---
